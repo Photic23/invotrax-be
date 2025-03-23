@@ -9,6 +9,4 @@ router.register(r'pengajuanpenawaranpengadaan', PengajuanPenawaranPengadaanViewS
 urlpatterns = [
     path(' ', include(router.urls)),
     path('api/', include(router.urls)),  # Ensure API routes are prefixed properly
-    path('pengajuan-penawaran-pengadaan/<int:pk>/', PengajuanPenawaranPengadaanViewSet.as_view({'get': 'get_detail_pengajuan', 
-                                                                                                'delete': 'delete_pengajuan'}), name="get-detail-pengajuan"),
 ]

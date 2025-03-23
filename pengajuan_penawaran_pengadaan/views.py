@@ -27,23 +27,16 @@ class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
-        return Response(serializer.errors, status=400)
     
-    def get_detail_pengajuan(self,request, pk):
-        try:
-            pengajuan_penawaran = PengajuanPenawaranPengadaan.objects.get(pk=pk)
-        except PengajuanPenawaranPengadaan.DoesNotExist:
-            return Response({"error": "Pengajuan penawaran pengadaan not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = PengajuanPenawaranPengadaanSerializer(pengajuan_penawaran)
-
-        return Response(serializer.data)
+    @action(detail=True, methods=['get'])
+    def detail_pengajuan(self, request, pk=None):
+        pengajuan_penawaran = get_object_or_404(PengajuanPenawaranPengadaan, pk=pk, is_deleted=False)
+        serializer = self.get_serializer(pengajuan_penawaran)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def delete_pengajuan(self, request, pk):
-        try:
-            pengajuan_penawaran = PengajuanPenawaranPengadaan.objects.get(pk=pk)
-        except PengajuanPenawaranPengadaan.DoesNotExist:
-            return Response({"error": "Pengajuan penawaran pengadaan not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        pengajuan_penawaran.delete()
+    @action(detail=True, methods=['delete'])
+    def delete_pengajuan(self, request, pk=None):
+        pengajuan_penawaran = get_object_or_404(PengajuanPenawaranPengadaan, pk=pk, is_deleted=False)
+        pengajuan_penawaran.is_deleted = True
+        pengajuan_penawaran.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
