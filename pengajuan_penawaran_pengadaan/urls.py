@@ -4,9 +4,8 @@ from .views import PengajuanPenawaranPengadaanViewSet
 
 # Register viewset with DefaultRouter
 router = DefaultRouter()
-router.register(r'pengajuanpenawaranpengadaan', PengajuanPenawaranPengadaanViewSet, basename='pengajuanpenawaran')
+router.register(r'pengajuan_penawaran_pengadaan', PengajuanPenawaranPengadaanViewSet, basename='pengajuanpenawaran')
 
 urlpatterns = [
-    path(' ', include(router.urls)),
-    path('api/', include(router.urls)),  # Ensure API routes are prefixed properly
+    path('', include(router.urls)),
 ]
