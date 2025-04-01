@@ -38,10 +38,9 @@ class PenawaranPengadaanViewSet(viewsets.ModelViewSet):
         penawaran_pengadaan = get_object_or_404(PenawaranPengadaan, pk=pk, is_deleted=False)    
         serializer = self.get_serializer(penawaran_pengadaan)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @action(detail=True, methods=['delete'])
-    def delete_penawaran_pengadaan(self, request, pk=None):
-        penawaran_pengadaan = get_object_or_404(PenawaranPengadaan, pk=pk, is_deleted=False)
-        penawaran_pengadaan.is_deleted = True
-        penawaran_pengadaan.save()    
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.is_deleted = True
+        instance.save()
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -34,9 +34,8 @@ class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(pengajuan_penawaran)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    @action(detail=True, methods=['delete'])
-    def delete_pengajuan(self, request, pk=None):
-        pengajuan_penawaran = get_object_or_404(PengajuanPenawaranPengadaan, pk=pk, is_deleted=False)
-        pengajuan_penawaran.is_deleted = True
-        pengajuan_penawaran.save()
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.is_deleted = True
+        instance.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
