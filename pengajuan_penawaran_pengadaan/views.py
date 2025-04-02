@@ -13,6 +13,20 @@ class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
+    def get_queryset(self):
+        user = self.request.user
+        if not user.is_authenticated:
+            return PengajuanPenawaranPengadaan.objects.none()
+        if user.role in ['staff', 'admin']:
+            return PengajuanPenawaranPengadaan.objects.filter(is_deleted=False)
+        elif user.role == 'customer':
+            return PengajuanPenawaranPengadaan.objects.filter(
+                is_deleted=False,
+                created_by=user
+            )
+        else:
+            return PengajuanPenawaranPengadaan.objects.none()
+
     @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
     def daftar_pengajuan_penawaran_pengadaan(self, request):
         pengajuan_penawaran_list = self.get_queryset()

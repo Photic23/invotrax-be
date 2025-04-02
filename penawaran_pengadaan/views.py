@@ -17,6 +17,20 @@ class PenawaranPengadaanViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    def get_queryset(self):
+        user = self.request.user
+        if not user.is_authenticated:
+            return PenawaranPengadaan.objects.none()
+        if user.role in ['staff', 'admin']:
+            return PenawaranPengadaan.objects.filter(is_deleted=False)
+        elif user.role == 'vendor':
+            return PenawaranPengadaan.objects.filter(
+                is_deleted=False,
+                supplier_vendor=user
+            )
+        else:
+            return PenawaranPengadaan.objects.none()
 
     @action(detail=False, methods=['get'])
     def daftar_penawaran_pengadaan(self, request): 
