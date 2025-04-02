@@ -11,7 +11,7 @@ class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
     # permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save()
+        serializer.save(created_by=self.request.user)
 
     @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
     def daftar_pengajuan_penawaran_pengadaan(self, request):
@@ -29,15 +29,39 @@ class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=400)
         return Response(serializer.errors, status=400)
     
-    def get_detail_pengajuan(self,request, pk):
-        try:
-            pengajuan_penawaran = PengajuanPenawaranPengadaan.objects.get(pk=pk)
-        except PengajuanPenawaranPengadaan.DoesNotExist:
-            return Response({"error": "Pengajuan penawaran pengadaan not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = PengajuanPenawaranPengadaanSerializer(pengajuan_penawaran)
-
-        return Response(serializer.data)
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        user = request.user 
+        if user.role in ['staff', 'admin']:     # all staff allowed
+            pass
+        elif user.role == 'customer' and instance.created_by == user:    # only allow owned
+            pass
+        elif instance.created_by is None and user.role in ['staff', 'admin']:
+            pass
+        else:
+            return Response(
+                {"error": "Not authorized to view this request."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['get'])
+    def detail_pengajuan(self, request, pk=None):
+        pengajuan_penawaran = get_object_or_404(PengajuanPenawaranPengadaan, pk=pk, is_deleted=False)
+        user = request.user
+        created_by = pengajuan_penawaran.created_by
+        if user.role in ['staff', 'admin']:     # all staff allowed
+            pass
+        elif user.role == 'customer' and created_by == user:    # only allow owned
+            pass
+        else:
+            return Response(
+                {"error": "Not authorized to view this request."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        serializer = self.get_serializer(pengajuan_penawaran)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
     def delete_pengajuan(self, request, pk):
         try:
