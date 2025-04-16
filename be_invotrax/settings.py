@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'pengajuan_penawaran_pengadaan',
     'manajemen_stok',
     'penawaran_pengadaan',
+    'manajemen_kontrak',
     # Third-party apps
     'rest_framework',
     'corsheaders',
