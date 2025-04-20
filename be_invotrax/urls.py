@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/pengajuan/', include('pengajuan_penawaran_pengadaan.urls')),
     path('api/manajemen_stok/', include('manajemen_stok.urls')),
     path('api/penawaran/', include('penawaran_pengadaan.urls')),
+    path('api/layanan_pasca_beli/', include('pengajuan_layanan_pasca_beli.urls')),
 ]
