@@ -26,3 +26,9 @@ class KontrakViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['get'])
+    def daftar_kontrak(self, request):
+        kontrak_list = self.get_queryset()
+        serializer = self.get_serializer(kontrak_list, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
