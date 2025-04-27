@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 
-from manajemen_stok.models import Kategori
+from pengajuan_penawaran_pengadaan.models import PengajuanPenawaranPengadaan
 
 # Create your models here.
 class ExchangeRequest(models.Model):
@@ -13,10 +13,7 @@ class ExchangeRequest(models.Model):
         related_name="exchange_requests"
     )
 
-    nama_produk = models.CharField(max_length=255)
-    # kategori_produk = models.ForeignKey(Kategori, on_delete=models.SET_NULL, null=True)
-    jumlah_produk = models.PositiveIntegerField()
-    deskripsi_produk = models.TextField(blank=True, null=True)
+    pengajuan = models.ForeignKey(PengajuanPenawaranPengadaan, on_delete=models.CASCADE, null=True, blank=True)
     alasan_penukaran = models.TextField(blank=False, null=False)
     url_foto_penukaran = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

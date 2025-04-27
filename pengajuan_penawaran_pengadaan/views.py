@@ -13,6 +13,20 @@ class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
+    def get_queryset(self):
+        user = self.request.user
+        if not user.is_authenticated:
+            return PengajuanPenawaranPengadaan.objects.none()
+        if user.role in ['staff', 'admin']:
+            return PengajuanPenawaranPengadaan.objects.filter(is_deleted=False)
+        elif user.role == 'customer':
+            return PengajuanPenawaranPengadaan.objects.filter(
+                is_deleted=False,
+                created_by=user
+            )
+        else:
+            return PengajuanPenawaranPengadaan.objects.none()
+
     @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
     def daftar_pengajuan_penawaran_pengadaan(self, request):
         pengajuan_penawaran_list = self.get_queryset()
@@ -26,7 +40,6 @@ class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        return Response(serializer.errors, status=400)
         return Response(serializer.errors, status=400)
     
     def retrieve(self, request, *args, **kwargs):
@@ -63,11 +76,8 @@ class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(pengajuan_penawaran)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    def delete_pengajuan(self, request, pk):
-        try:
-            pengajuan_penawaran = PengajuanPenawaranPengadaan.objects.get(pk=pk)
-        except PengajuanPenawaranPengadaan.DoesNotExist:
-            return Response({"error": "Pengajuan penawaran pengadaan not found"}, status=status.HTTP_404_NOT_FOUND)
-        
-        pengajuan_penawaran.delete()
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.is_deleted = True
+        instance.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
