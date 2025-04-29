@@ -10,7 +10,7 @@ class VendorSerializer(serializers.ModelSerializer):
 class KategoriSerializer(serializers.ModelSerializer):
     class Meta:
         model = Kategori
-        fields = ['id', 'nama']
+        fields = ['id', 'nama', 'batas_stok_kritis']
 
 class ProdukSerializer(serializers.ModelSerializer):
     # Untuk Create: hanya menerima ID
@@ -23,4 +23,4 @@ class ProdukSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Produk
-        fields = ['id', 'nama', 'kategori', 'vendor', 'kategori_detail', 'vendor_detail', 'stok', 'harga', 'deskripsi']
+        fields = ['id', 'nama', 'kategori', 'vendor', 'kategori_detail', 'vendor_detail', 'kontrak', 'stok', 'harga', 'deskripsi']

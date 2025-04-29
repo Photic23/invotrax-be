@@ -1,0 +1,58 @@
+name: GitLab CI Equivalent Workflow
+
+on:
+  push:
+    branches: [ dev ]
+
+env:
+  APP_DIR: "/home/propenchill/propenchill"
+  VENV_PATH: "/home/propenchill/propenchill/venv"
+  DB_NAME: "propenchill"
+  DB_USER: "propenchill"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libpq-dev
+    
+    - name: Install Python dependencies
+      run: |
+        pip install -r requirements.txt
+        python manage.py collectstatic --noinput
+        python manage.py check --deploy
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to server
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        LIGHTHOUSE_HOST: ${{ secrets.LIGHTHOUSE_HOST }}
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y openssh-client sshpass
+        
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        echo -e "Host $LIGHTHOUSE_HOST\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+        
+        sshpass -p "123ytrewq" ssh propenchill@$LIGHTHOUSE_HOST "mkdir -p $APP_DIR"
+        sshpass -p "123ytrewq" scp -r ./* propenchill@$LIGHTHOUSE_HOST:$APP_DIR/
+        
+        sshpass -p "123ytrewq" ssh propenchill@$LIGHTHOUSE_HOST "cd $APP_DIR && python3 -m venv $VENV_PATH || true"
+        sshpass -p "123ytrewq" ssh propenchill@$LIGHTHOUSE_HOST "cd $APP_DIR && source $VENV_PATH/bin/activate && pip install -r requirements.txt"
+        sshpass -p "123ytrewq" ssh propenchill@$LIGHTHOUSE_HOST "cd $APP_DIR && source $VENV_PATH/bin/activate && python manage.py migrate --noinput"
+        sshpass -p "123ytrewq" ssh propenchill@$LIGHTHOUSE_HOST "cd $APP_DIR && source $VENV_PATH/bin/activate && python manage.py collectstatic --noinput"
+        
+        sshpass -p "123ytrewq" ssh propenchill@$LIGHTHOUSE_HOST "echo '123ytrewq' | sudo -S systemctl restart gunicorn"
+        sshpass -p "123ytrewq" ssh propenchill@$LIGHTHOUSE_HOST "echo '123ytrewq' | sudo -S systemctl restart nginx"

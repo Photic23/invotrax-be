@@ -13,7 +13,7 @@ class KontrakSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Kontrak
-        fields = ['id', 'penawaran', 'penawaran_detail', 'start_date', 'end_date', 'dokumen_kontrak', 'created_at', 'is_deleted']
+        fields = ['id', 'penawaran', 'penawaran_detail', 'start_date', 'end_date', 'dokumen_kontrak', 'created_at', 'is_deleted', 'status']
         read_only_fields = ['id', 'created_at', 'is_deleted']
 
     def validate_dokumen_kontrak(self, file):
