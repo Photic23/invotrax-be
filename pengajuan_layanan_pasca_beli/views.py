@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from .models import ExchangeRequest
 from .serializers import ExchangeRequestSerializer 
-
+from rest_framework.exceptions import PermissionDenied
 # Create your views here.
 class ExchangeRequestViewSet(viewsets.ModelViewSet):
     queryset = ExchangeRequest.objects.filter(is_deleted=False)
@@ -27,6 +27,16 @@ class ExchangeRequestViewSet(viewsets.ModelViewSet):
             )
         else:
             return ExchangeRequest.objects.none()
+        
+        
+    def retrieve(self, request, pk=None):
+        exchange_request = get_object_or_404(ExchangeRequest, pk=pk, is_deleted=False)
+        
+        user = request.user
+        if user.role in ['staff', 'admin'] or exchange_request.created_by == user:
+            serializer = self.get_serializer(exchange_request)
+            return Response(serializer.data)
+        raise PermissionDenied("You do not have permission to view this exchange request.")
         
     @action(detail=True, methods=['patch'])
     def update_exchange_request(self, request, pk=None):
