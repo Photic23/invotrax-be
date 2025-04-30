@@ -3,7 +3,7 @@ from pengajuan_layanan_pasca_beli.models import ExchangeRequest
 from pengajuan_penawaran_pengadaan.models import PengajuanPenawaranPengadaan
 
 class ExchangeRequestSerializer(serializers.ModelSerializer):
-    pengajuan = serializers.PrimaryKeyRelatedField(read_only=True)
+    #pengajuan = serializers.PrimaryKeyRelatedField(read_only=True)
     #uncomment this if error
     #pengajuan_detail = PengajuanPenawaranPengadaanSerializer(source='pengajuan', read_only=True)
 
