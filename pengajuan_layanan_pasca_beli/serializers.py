@@ -1,11 +1,12 @@
 from rest_framework import serializers
 from pengajuan_layanan_pasca_beli.models import ExchangeRequest
 from pengajuan_penawaran_pengadaan.models import PengajuanPenawaranPengadaan
+from pengajuan_penawaran_pengadaan.serializers import *
 
 class ExchangeRequestSerializer(serializers.ModelSerializer):
     #pengajuan = serializers.PrimaryKeyRelatedField(read_only=True)
     #uncomment this if error
-    #pengajuan_detail = PengajuanPenawaranPengadaanSerializer(source='pengajuan', read_only=True)
+    pengajuan_detail = PengajuanPenawaranPengadaanSerializer(source='pengajuan', read_only=True)
 
     class PengajuanPenawaranPengadaanSerializer(serializers.ModelSerializer):
         class Meta:
