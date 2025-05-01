@@ -192,9 +192,10 @@ class UserManagementView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request, user_id):
-        # Delete a user
+        # Soft delete a user
         try:
-            user = User.objects.get(id=user_id)
+            # Use all_objects to find potentially deleted users
+            user = User.all_objects.get(id=user_id)
         except User.DoesNotExist:
             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
             
@@ -205,8 +206,61 @@ class UserManagementView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
             
-        user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        # Handle restoration if the user is already deleted
+        if user.is_deleted:
+            return Response({"error": "User is already deleted"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Attempt to soft delete the user
+        try:
+            user.delete()
+            return Response({"status": "User successfully deleted"}, status=status.HTTP_200_OK)
+        except ValidationError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class UserHardDeleteView(APIView):
+    required_permission = 'all_permission'
+    permission_classes = [HasRolePermission]
+    
+    def delete(self, request, user_id):
+        try:
+            # Use all_objects to find potentially deleted users
+            user = User.all_objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        # Check if permanently deleting manager/admin (requires admin role)
+        if user.role in ['manager', 'admin'] and not has_role(request.user, 'admin'):
+            return Response(
+                {"error": "Only administrators can permanently delete managers or admins"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        # Attempt to hard delete the user
+        try:
+            user.hard_delete()
+            return Response({"status": "User permanently deleted"}, status=status.HTTP_200_OK)
+        except ValidationError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+# Add a new view for user restoration
+class UserRestoreView(APIView):
+    required_permission = 'all_permission'
+    permission_classes = [HasRolePermission]
+    
+    def post(self, request, user_id):
+        try:
+            # Use all_objects to find soft-deleted users
+            user = User.all_objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check if the user is already active
+        if not user.is_deleted:
+            return Response({"error": "User is not deleted"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Restore the user
+        user.restore()
+        return Response({"status": "User successfully restored"}, status=status.HTTP_200_OK)
 
 # Custom permissions management
 class CustomPermissionView(APIView):
