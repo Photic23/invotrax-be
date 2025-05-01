@@ -1,7 +1,6 @@
 from django.db import models
 from penawaran_pengadaan.models import PenawaranPengadaan
 
-
 class Kontrak(models.Model):
     STATUS_CHOICES = [
         ('Aktif', 'Aktif'),

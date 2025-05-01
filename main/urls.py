@@ -20,6 +20,5 @@ urlpatterns = [
 
     # New endpoints for soft delete functionality
     path('admins/users/<int:user_id>/restore/', views.UserRestoreView.as_view(), name='user_restore'),
-    path('admins/users/<int:user_id>/restore/', views.UserRestoreView.as_view(), name='user_restore'),
     path('admins/users/<int:user_id>/hard-delete/', views.UserHardDeleteView.as_view(), name='user_hard_delete'),
 ]

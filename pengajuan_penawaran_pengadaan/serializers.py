@@ -8,5 +8,8 @@ class PengajuanPenawaranPengadaanSerializer(serializers.ModelSerializer):
         model = PengajuanPenawaranPengadaan
         fields = '__all__'
 
+    # Make these fields optional in the serializer
+    tanggal_estimasi = serializers.DateField(required=False)
+    tanggal_diterima_dikirim = serializers.DateField(required=False)
     def get_status_garansi(self, obj):
         return obj.status_garansi  # This calls your @property
