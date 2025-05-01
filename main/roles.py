@@ -38,6 +38,7 @@ class manager(AbstractUserRole):
         'manage_staff': True,
         'system_settings': True,
         'staff_permission': True,
+        'manage_kontrak': True, # Manajemen Kontrak devin
     }
 
 class admin(AbstractUserRole):

@@ -2,7 +2,7 @@ import datetime
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
-import datetime
+from django.utils import timezone
 
 # class Supplier(models.Model):
 #     nama = models.CharField(max_length=255, unique=True)
@@ -47,8 +47,19 @@ class PengajuanPenawaranPengadaan(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='diajukan')
     created_at = models.DateTimeField(auto_now_add=True)
     harga_diajukan = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
-    tanggal_estimasi = models.DateField(default=datetime.date.today())
-    tanggal_diterima_dikirim = models.DateField(default=datetime.date.today())
+    tanggal_estimasi = models.DateField(default=datetime.date.today)
+    tanggal_diterima_dikirim = models.DateField(default=datetime.date.today)
+    tanggal_garansi = models.DateField(null=True, blank=True)
     # updated_at = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
 
+    def save(self, *args, **kwargs):
+        if self.status == 'diterima' and not self.tanggal_garansi:
+            self.tanggal_garansi = timezone.now().date() + datetime.timedelta(days=30)
+        super().save(*args, **kwargs)
+
+    @property
+    def status_garansi(self):
+        if self.tanggal_garansi and self.tanggal_garansi < timezone.now().date():
+            return "Habis"
+        return "Berlaku"
