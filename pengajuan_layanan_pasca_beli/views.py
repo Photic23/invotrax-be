@@ -47,3 +47,11 @@ class ExchangeRequestViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=False, methods=["get"], url_path="by_pengajuan/(?P<pengajuan_id>[^/.]+)")
+    def by_pengajuan(self, request, pengajuan_id=None):
+        try:
+            exchange = ExchangeRequest.objects.get(pengajuan_id=pengajuan_id)
+            serializer = self.get_serializer(exchange)
+            return Response(serializer.data)
+        except ExchangeRequest.DoesNotExist:
+            return Response(status=status.HTTP_204_NO_CONTENT)
