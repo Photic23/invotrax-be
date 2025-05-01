@@ -22,7 +22,7 @@ class PenawaranPengadaanViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not user.is_authenticated:
             return PenawaranPengadaan.objects.none()
-        if user.role in ['staff', 'manager', 'admin']:
+        if user.role in ['staff', 'manager', 'admin', 'vendor']:
             return PenawaranPengadaan.objects.filter(is_deleted=False)
         elif user.role == 'vendor':
             return PenawaranPengadaan.objects.filter(
@@ -50,7 +50,7 @@ class PenawaranPengadaanViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         user = request.user 
-        if user.role in ['staff', 'admin']:     # all staff allowed
+        if user.role in ['staff', 'admin', 'vendor']:     # all staff allowed
             pass
         elif user.role == 'vendor' and instance.supplier_vendor == user:    # only allow owned
             pass
