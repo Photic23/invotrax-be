@@ -32,3 +32,34 @@ class KontrakViewSet(viewsets.ModelViewSet):
         kontrak_list = self.get_queryset()
         serializer = self.get_serializer(kontrak_list, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Check if the contract status is 'Nonaktif' before allowing deletion
+        if instance.status != 'Nonaktif':
+            return Response(
+                {"error": "Hanya kontrak dengan status Nonaktif yang dapat dihapus"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Perform soft delete
+        instance.is_deleted = True
+        instance.save()
+        return Response({"message": "Kontrak berhasil dihapus"}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['delete'])
+    def delete_kontrak(self, request, pk=None):
+        kontrak = get_object_or_404(Kontrak, pk=pk, is_deleted=False)
+        
+        # Check if the contract status is 'Nonaktif' before allowing deletion
+        if kontrak.status != 'Nonaktif':
+            return Response(
+                {"error": "Hanya kontrak dengan status Nonaktif yang dapat dihapus"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Perform soft delete
+        kontrak.is_deleted = True
+        kontrak.save()
+        return Response({"message": "Kontrak berhasil dihapus"}, status=status.HTTP_200_OK)
