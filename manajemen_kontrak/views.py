@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -10,9 +11,22 @@ from main.permissions import HasRolePermission
 class KontrakViewSet(viewsets.ModelViewSet):
     required_permission = 'staff_permission'
     permission_classes = [HasRolePermission]
-
-    queryset = Kontrak.objects.filter(is_deleted=False)
     serializer_class = KontrakSerializer
+
+    def get_queryset(self):
+        today = timezone.localdate()
+        Kontrak.objects.filter(
+            end_date__lt=today,
+            status='Aktif',
+            is_deleted=False
+        ).update(status='Nonaktif')
+
+        Kontrak.objects.filter(
+            end_date__gte=today,
+            status='Nonaktif',
+            is_deleted=False
+        ).update(status='Aktif')
+        return Kontrak.objects.filter(is_deleted=False)
 
     def perform_create(self, serializer):
         serializer.save()
