@@ -55,7 +55,7 @@ class PengajuanPenawaranPengadaan(models.Model):
 
     def save(self, *args, **kwargs):
         if self.status == 'diterima' and not self.tanggal_garansi:
-            self.tanggal_garansi = timezone.now().date() + datetime.timedelta(days=30)
+            self.tanggal_garansi = timezone.now().date() + datetime.timedelta(days=30)      #assuming warranty extend for 30 days since arrival
         super().save(*args, **kwargs)
 
     @property
