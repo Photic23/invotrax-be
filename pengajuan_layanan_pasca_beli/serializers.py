@@ -13,7 +13,7 @@ class ExchangeRequestSerializer(serializers.ModelSerializer):
     class PengajuanPenawaranPengadaanSerializer(serializers.ModelSerializer):
         class Meta:
             model = PengajuanPenawaranPengadaan
-            fields = ["id", "nama_produk", "jumlah_produk", "deskripsi_produk"]
+            fields = ["id", "nama_produk", "kategori_produk", "jumlah_produk", "deskripsi_produk"]
     
     def get_created_by_username(self, obj):
         if obj.created_by:
