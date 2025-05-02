@@ -22,7 +22,7 @@ class PenawaranPengadaanViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not user.is_authenticated:
             return PenawaranPengadaan.objects.none()
-        if user.role in ['staff', 'manager', 'admin', 'vendor']:
+        if user.role in ['staff', 'manager', 'admin']:
             return PenawaranPengadaan.objects.filter(is_deleted=False)
         elif user.role == 'vendor':
             return PenawaranPengadaan.objects.filter(
