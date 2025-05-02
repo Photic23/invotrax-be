@@ -3,6 +3,8 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from manajemen_stok.models import Kategori
+
 
 # class Supplier(models.Model):
 #     nama = models.CharField(max_length=255, unique=True)
@@ -38,9 +40,17 @@ class PengajuanPenawaranPengadaan(models.Model):
         blank=True,
         related_name="pengajuan_requests"
     )
+
+    supplier_vendor = models.ForeignKey(
+         settings.AUTH_USER_MODEL,
+         on_delete=models.SET_NULL,
+         null=True,
+         blank=True,
+         limit_choices_to={'role': 'vendor'}
+    )
     # supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True)
     nama_produk = models.CharField(max_length=255)
-    # kategori_produk = models.ForeignKey(Kategori, on_delete=models.SET_NULL, null=True)
+    kategori_produk = models.ForeignKey(Kategori, on_delete=models.SET_NULL, null=True)
     jumlah_produk = models.PositiveIntegerField()
     deskripsi_produk = models.TextField(blank=True, null=True)
     url_foto_produk = models.URLField(blank=True, null=True)
