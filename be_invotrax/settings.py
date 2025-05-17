@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'pengajuan_layanan_pasca_beli',
     'manajemen_kontrak',
     'penilaian',
+    'evaluasi_supplier',
     # Third-party apps
     'rest_framework',
     'corsheaders',
