@@ -1,6 +1,11 @@
 from django.db import models
 from django.conf import settings
 
+QUARTER_CHOICES = [
+    (1, "Q1"), (2, "Q2"),
+    (3, "Q3"), (4, "Q4"),
+]
+
 LIKERT_CHOICES = [(i, str(i)) for i in range(1, 6)]
 
 class EvaluasiSupplier(models.Model):
@@ -8,6 +13,12 @@ class EvaluasiSupplier(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         limit_choices_to={'role': 'vendor'}
+    )
+    tahun = models.PositiveIntegerField(null=True, editable=False)
+    kuartal = models.PositiveIntegerField(
+        choices=QUARTER_CHOICES,
+        null=True,
+        editable=False
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -53,3 +64,6 @@ class EvaluasiSupplier(models.Model):
             self.responsif_1, self.responsif_2,
         ]
         return round(sum(fields) / len(fields), 2)
+
+    class Meta:
+        unique_together = ['supplier_vendor', 'tahun', 'kuartal']
