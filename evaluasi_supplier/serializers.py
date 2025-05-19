@@ -18,6 +18,7 @@ class EvaluasiSupplierSerializer(serializers.ModelSerializer):
         model = EvaluasiSupplier
         fields = [
             'id', 'supplier_vendor', 'supplier_company_name',
+            'tahun', 'kuartal',
             'created_at', 'updated_at',
             'kualitas_1', 'kualitas_2', 'kualitas_3', 'kualitas_4', 'kualitas_5',
             'harga_1', 'harga_2', 'harga_3',
@@ -26,7 +27,7 @@ class EvaluasiSupplierSerializer(serializers.ModelSerializer):
             'responsif_1', 'responsif_2',
             'rating',
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at', 'supplier_company_name', 'rating']
+        read_only_fields = ['id', 'supplier_company_name', 'tahun', 'kuartal','created_at', 'updated_at', 'rating']
 
     def get_supplier_company_name(self, obj):
         if obj.supplier_vendor:
