@@ -24,6 +24,10 @@ class EvaluasiSupplierViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         supplier = serializer.validated_data['supplier_vendor']
+        
+        if supplier.role != 'vendor':
+            raise serializers.ValidationError("User yang dipilih bukan supplier (vendor).")
+        
         today = timezone.localdate()
         current_year = today.year
         current_month = today.month
@@ -49,6 +53,9 @@ class EvaluasiSupplierViewSet(viewsets.ModelViewSet):
 
         tahun = kontrak.end_date.year
         kuartal = (kontrak.end_date.month - 1) // 3 + 1
+
+        if EvaluasiSupplier.objects.filter(supplier_vendor=supplier, tahun=tahun, kuartal=kuartal).exists():
+            raise serializers.ValidationError("Supplier ini sudah dievaluasi untuk periode tersebut.")
 
         serializer.save(tahun=tahun, kuartal=kuartal)
         
@@ -127,6 +134,7 @@ class EvaluasiSupplierViewSet(viewsets.ModelViewSet):
             item['rank'] = index
             item['evaluation_allowed'] = False
             item['update_allowed'] = is_current
+            item['readonly_detail'] = not is_current
 
         for item in unevaluated:
             item['rating'] = '-'
