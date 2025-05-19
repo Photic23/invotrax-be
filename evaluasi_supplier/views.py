@@ -51,6 +51,18 @@ class EvaluasiSupplierViewSet(viewsets.ModelViewSet):
         kuartal = (kontrak.end_date.month - 1) // 3 + 1
 
         serializer.save(tahun=tahun, kuartal=kuartal)
+        
+    def perform_update(self, serializer):
+        instance = serializer.instance
+        today = timezone.localdate()
+        current_year = today.year
+        current_month = today.month
+        current_quarter = (current_month - 1) // 3 + 1
+        
+        if instance.tahun != current_year or instance.kuartal != current_quarter:
+            raise serializers.ValidationError("Hanya evaluasi supplier pada quarter saat ini yang dapat diperbarui.")
+            
+        serializer.save()
 
     @action(detail=False, methods=['get'])
     def daftar_evaluasi(self, request):
