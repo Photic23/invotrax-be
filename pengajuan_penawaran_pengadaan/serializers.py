@@ -22,13 +22,14 @@ class PengajuanPenawaranPengadaanSerializer(serializers.ModelSerializer):
     kategori_produk_detail = KategoriSerializer(source='kategori_produk', read_only=True)
     supplier_vendor_detail = VendorSerializer(source='supplier_vendor', read_only=True)
 
+    # Make these fields optional in the serializer
+    tanggal_estimasi = serializers.DateField(required=False)
+    tanggal_diterima_dikirim = serializers.DateField(required=False)
+    durasi_garansi = serializers.IntegerField(required=False, allow_null=True)
 
     class Meta:
         model = PengajuanPenawaranPengadaan
         fields = '__all__'
 
-    # Make these fields optional in the serializer
-    tanggal_estimasi = serializers.DateField(required=False)
-    tanggal_diterima_dikirim = serializers.DateField(required=False)
     def get_status_garansi(self, obj):
         return obj.status_garansi  # This calls your @property
