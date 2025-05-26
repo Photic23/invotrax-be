@@ -8,7 +8,6 @@ from .serializers import PengajuanPenawaranPengadaanSerializer
 class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
     queryset = PengajuanPenawaranPengadaan.objects.filter(is_deleted=False)
     serializer_class = PengajuanPenawaranPengadaanSerializer
-    # permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -17,9 +16,9 @@ class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not user.is_authenticated:
             return PengajuanPenawaranPengadaan.objects.none()
-        if user.role in ['staff', 'admin']:
+        if user.role in ['staff', 'admin', 'manager']:          # staff/manager/admin allowed access all
             return PengajuanPenawaranPengadaan.objects.filter(is_deleted=False)
-        elif user.role == 'customer':
+        elif user.role == 'customer':           # allow customer to view only owned object
             return PengajuanPenawaranPengadaan.objects.filter(
                 is_deleted=False,
                 created_by=user
@@ -45,11 +44,11 @@ class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         user = request.user 
-        if user.role in ['staff', 'admin']:     # all staff allowed
+        if user.role in ['staff', 'admin', 'manager']:     # staff/admin/manager allowed to access all
             pass
-        elif user.role == 'customer' and instance.created_by == user:    # only allow owned
+        elif user.role == 'customer' and instance.created_by == user:    # allow customer to access only owned
             pass
-        elif instance.created_by is None and user.role in ['staff', 'admin']:
+        elif instance.created_by is None and user.role in ['staff', 'admin', 'manager']:        # in case no customer related
             pass
         else:
             return Response(
@@ -64,9 +63,9 @@ class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
         pengajuan_penawaran = get_object_or_404(PengajuanPenawaranPengadaan, pk=pk, is_deleted=False)
         user = request.user
         created_by = pengajuan_penawaran.created_by
-        if user.role in ['staff', 'admin']:     # all staff allowed
+        if user.role in ['staff', 'admin', 'manager']:     # staff/manager/admin allowed all
             pass
-        elif user.role == 'customer' and created_by == user:    # only allow owned
+        elif user.role == 'customer' and created_by == user:    # allow customer to access only owned
             pass
         else:
             return Response(

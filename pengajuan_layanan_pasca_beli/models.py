@@ -19,7 +19,8 @@ class ExchangeRequest(models.Model):
         blank=True,
         related_name="exchange_requests"
     )
-    pengajuan = models.OneToOneField(PengajuanPenawaranPengadaan, on_delete=models.CASCADE, null=True, blank=True)
+    
+    pengajuan = models.OneToOneField(PengajuanPenawaranPengadaan, on_delete=models.CASCADE, null=True, blank=True)      # for pengajuan that is going to be exchanged
     alasan_penukaran = models.TextField(blank=False, null=False)
     url_foto_penukaran = models.URLField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='diajukan')

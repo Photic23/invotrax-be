@@ -14,11 +14,11 @@ class ExchangeRequestViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)           #save who created particular request
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
-    def get_queryset(self):              #set only owner user/staff/admin can view certain exchange request
+    def get_queryset(self):              #set only owner user/staff/admin/manager can view certain exchange request
         user = self.request.user
         if not user.is_authenticated:
             return ExchangeRequest.objects.none()
-        if user.role in ['staff', 'admin']:
+        if user.role in ['staff', 'admin', 'manager']:
             return ExchangeRequest.objects.filter(is_deleted=False)
         elif user.role == 'customer':
             return ExchangeRequest.objects.filter(
@@ -33,7 +33,7 @@ class ExchangeRequestViewSet(viewsets.ModelViewSet):
         exchange_request = get_object_or_404(ExchangeRequest, pk=pk, is_deleted=False)
         
         user = request.user
-        if user.role in ['staff', 'admin'] or exchange_request.created_by == user:
+        if user.role in ['staff', 'admin', 'manager'] or exchange_request.created_by == user:       #set only owner user/staff/admin/manager can view certain exchange request
             serializer = self.get_serializer(exchange_request)
             return Response(serializer.data)
         raise PermissionDenied("You do not have permission to view this exchange request.")

@@ -5,25 +5,6 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from manajemen_stok.models import Kategori
 
-
-# class Supplier(models.Model):
-#     nama = models.CharField(max_length=255, unique=True)
-#     kontak = models.CharField(max_length=255, blank=True, null=True)
-#     email = models.EmailField(blank=True, null=True)
-#     alamat = models.TextField(blank=True, null=True)
-#     created_at = models.DateTimeField(auto_now_add=True)
-
-#     def __str__(self):
-#         return self.nama
-
-# class Kategori(models.Model):
-#     nama = models.CharField(max_length=255, unique=True)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     is_deleted = models.BooleanField(default=False)
-
-#     def __str__(self):
-#         return self.nama
-
 class PengajuanPenawaranPengadaan(models.Model):
     STATUS_CHOICES = [
         ('diajukan', 'Diajukan'),
@@ -33,6 +14,7 @@ class PengajuanPenawaranPengadaan(models.Model):
         ('diterima', 'Diterima'),
     ]
 
+    # to save who is the owner
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -42,13 +24,12 @@ class PengajuanPenawaranPengadaan(models.Model):
     )
 
     supplier_vendor = models.ForeignKey(
-         settings.AUTH_USER_MODEL,
-         on_delete=models.SET_NULL,
-         null=True,
-         blank=True,
-         limit_choices_to={'role': 'vendor'}
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        limit_choices_to={'role': 'vendor'}
     )
-    # supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True)
     nama_produk = models.CharField(max_length=255)
     kategori_produk = models.ForeignKey(Kategori, on_delete=models.SET_NULL, null=True)
     jumlah_produk = models.PositiveIntegerField()
@@ -59,9 +40,8 @@ class PengajuanPenawaranPengadaan(models.Model):
     harga_diajukan = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     # Update these fields to be nullable
     tanggal_estimasi = models.DateField(null=True, blank=True)
-    tanggal_diterima_dikirim = models.DateField(null=True, blank=True)
+    tanggal_diterima_dikirim = models.DateField(null=True, blank=True)      #Variabel untuk pencatatan historis proses pengiriman dan penerimaan
     tanggal_garansi = models.DateField(null=True, blank=True)
-    # updated_at = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
@@ -71,6 +51,6 @@ class PengajuanPenawaranPengadaan(models.Model):
 
     @property
     def status_garansi(self):
-        if self.tanggal_garansi and self.tanggal_garansi < timezone.now().date():
+        if self.tanggal_garansi and self.tanggal_garansi < timezone.now().date():           # check and update when accessed  
             return "Habis"
         return "Berlaku"

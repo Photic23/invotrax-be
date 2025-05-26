@@ -15,11 +15,11 @@ class ExchangeRequestSerializer(serializers.ModelSerializer):
             model = PengajuanPenawaranPengadaan
             fields = ["id", "nama_produk", "kategori_produk", "jumlah_produk", "deskripsi_produk"]
     
-    def get_created_by_username(self, obj):
+    def get_created_by_username(self, obj):         # user who created the request
         if obj.created_by:
             return obj.created_by.username
         return None
         
     class Meta:
         model = ExchangeRequest
-        fields = '__all__'  # This includes the original created_by field with the ID
+        fields = '__all__'      # This includes the original created_by field with the ID
