@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from .models import PengajuanPenawaranPengadaan
 from .serializers import PengajuanPenawaranPengadaanSerializer
+import datetime
+from django.utils import timezone
 
 class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
     queryset = PengajuanPenawaranPengadaan.objects.filter(is_deleted=False)
@@ -80,3 +82,34 @@ class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
         instance.is_deleted = True
         instance.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        
+        # Store the old status to detect changes
+        old_status = instance.status
+        
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        if serializer.is_valid():
+            # Get the new status from the request data
+            new_status = request.data.get('status', old_status)
+            
+            # Special handling when status changes to 'diterima'
+            if old_status == 'dikirim' and new_status == 'diterima':
+                # Calculate warranty end date based on delivery date + duration
+                if instance.tanggal_diterima_dikirim and instance.durasi_garansi:
+                    warranty_end_date = instance.tanggal_diterima_dikirim + datetime.timedelta(days=instance.durasi_garansi)
+                    serializer.validated_data['tanggal_garansi'] = warranty_end_date
+                elif instance.durasi_garansi:
+                    # Fallback: use current date if tanggal_diterima_dikirim is not set
+                    warranty_end_date = timezone.now().date() + datetime.timedelta(days=instance.durasi_garansi)
+                    serializer.validated_data['tanggal_garansi'] = warranty_end_date
+            
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)

@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from .models import Produk, Kategori
 from .serializers import ProdukSerializer, KategoriSerializer
 from main.permissions import HasRolePermission
+from django.db.models import Sum
 
 class ProdukViewSet(viewsets.ModelViewSet):
     required_permission = 'staff_permission'
@@ -16,6 +17,14 @@ class ProdukViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'])
+    def total_stok(self, request):
+        total = self.get_queryset().aggregate(total_stok=Sum('stok'))['total_stok'] or 0
+        return Response({
+            'total_stok': total,
+            'jumlah_produk': self.get_queryset().count()
+        }, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'])
     def daftar_produk(self, request):

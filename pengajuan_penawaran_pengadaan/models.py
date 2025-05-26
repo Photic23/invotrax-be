@@ -38,17 +38,23 @@ class PengajuanPenawaranPengadaan(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='diajukan')
     created_at = models.DateTimeField(auto_now_add=True)
     harga_diajukan = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
-    # Update these fields to be nullable
     tanggal_estimasi = models.DateField(null=True, blank=True)
     tanggal_diterima_dikirim = models.DateField(null=True, blank=True)      #Variabel untuk pencatatan historis proses pengiriman dan penerimaan
     tanggal_garansi = models.DateField(null=True, blank=True)
+    durasi_garansi = models.PositiveIntegerField(null=True, blank=True, help_text="Durasi garansi dalam hari")
     is_deleted = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
-        if self.status == 'diterima' and not self.tanggal_garansi:
-            self.tanggal_garansi = timezone.now().date() + datetime.timedelta(days=30)      #assuming warranty extend for 30 days since arrival
+        # When status changes to 'diterima', calculate tanggal_garansi
+        if self.status == 'diterima' and not self.tanggal_garansi and self.durasi_garansi:
+            # Use tanggal_diterima_dikirim as the base date, not current date
+            if self.tanggal_diterima_dikirim:
+                self.tanggal_garansi = self.tanggal_diterima_dikirim + datetime.timedelta(days=self.durasi_garansi)
+            else:
+                # Fallback to current date if tanggal_diterima_dikirim is not set
+                self.tanggal_garansi = timezone.now().date() + datetime.timedelta(days=self.durasi_garansi)
         super().save(*args, **kwargs)
-
+        
     @property
     def status_garansi(self):
         if self.tanggal_garansi and self.tanggal_garansi < timezone.now().date():           # check and update when accessed  

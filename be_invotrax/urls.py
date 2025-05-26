@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/layanan_pasca_beli/', include('pengajuan_layanan_pasca_beli.urls')),
     path('api/penilaian/', include('penilaian.urls')),
     path('api/manajemen_kontrak/', include('manajemen_kontrak.urls')),
+    path('api/evaluasi_supplier/', include('evaluasi_supplier.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
