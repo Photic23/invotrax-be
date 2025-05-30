@@ -51,6 +51,7 @@ class CustomUser(AbstractUser):
         ('staff', 'Staff'),
         ('manager', 'Manager'),
         ('admin', 'Admin'),
+        ('owner', 'Owner'),  # Added owner role
     )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='customer')
     
