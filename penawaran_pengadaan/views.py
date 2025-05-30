@@ -2,14 +2,10 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
 from .models import PenawaranPengadaan
 from .serializers import PenawaranPengadaanSerializer
-from main.permissions import HasRolePermission
 
 class PenawaranPengadaanViewSet(viewsets.ModelViewSet):
-    # required_permission = 'vendor_permission'
-    # permission_classes = [HasRolePermission]
 
     queryset = PenawaranPengadaan.objects.filter(is_deleted=False)
     serializer_class = PenawaranPengadaanSerializer
@@ -22,9 +18,9 @@ class PenawaranPengadaanViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not user.is_authenticated:
             return PenawaranPengadaan.objects.none()
-        if user.role in ['staff', 'manager', 'admin']:
+        if user.role in ['staff', 'manager', 'admin']:      # staff/manager/admin allowed access all
             return PenawaranPengadaan.objects.filter(is_deleted=False)
-        elif user.role == 'vendor':
+        elif user.role == 'vendor':         # only allow vendor who owned the object to view
             return PenawaranPengadaan.objects.filter(
                 is_deleted=False,
                 supplier_vendor=user
@@ -50,11 +46,11 @@ class PenawaranPengadaanViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         user = request.user 
-        if user.role in ['staff', 'admin', 'vendor']:     # all staff allowed
+        if user.role in ['staff', 'admin', 'manager']:     # staff/manager/admin allowed access all
             pass
-        elif user.role == 'vendor' and instance.supplier_vendor == user:    # only allow owned
+        elif user.role == 'vendor' and instance.supplier_vendor == user:    # only allow vendor to access owned object
             pass
-        elif instance.supplier_vendor is None and user.role in ['staff', 'admin']:
+        elif instance.supplier_vendor is None and user.role in ['staff', 'admin', 'manager']:      # in case no vendor related
             pass
         else:
             return Response(
