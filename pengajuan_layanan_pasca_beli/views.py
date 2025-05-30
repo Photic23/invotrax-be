@@ -18,7 +18,7 @@ class ExchangeRequestViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not user.is_authenticated:
             return ExchangeRequest.objects.none()
-        if user.role in ['staff', 'admin']:
+        if user.role in ['staff', 'admin', 'manager']:
             return ExchangeRequest.objects.filter(is_deleted=False)
         elif user.role == 'customer':
             return ExchangeRequest.objects.filter(

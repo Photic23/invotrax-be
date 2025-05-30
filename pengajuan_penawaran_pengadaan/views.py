@@ -19,7 +19,7 @@ class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not user.is_authenticated:
             return PengajuanPenawaranPengadaan.objects.none()
-        if user.role in ['staff', 'admin']:
+        if user.role in ['staff', 'admin', 'manager']:
             return PengajuanPenawaranPengadaan.objects.filter(is_deleted=False)
         elif user.role == 'customer':
             return PengajuanPenawaranPengadaan.objects.filter(
