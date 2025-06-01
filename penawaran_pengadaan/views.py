@@ -18,7 +18,7 @@ class PenawaranPengadaanViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not user.is_authenticated:
             return PenawaranPengadaan.objects.none()
-        if user.role in ['staff', 'manager', 'admin']:      # staff/manager/admin allowed access all
+        if user.role in ['staff', 'admin']:      # staff/admin allowed access all
             return PenawaranPengadaan.objects.filter(is_deleted=False)
         elif user.role == 'vendor':         # only allow vendor who owned the object to view
             return PenawaranPengadaan.objects.filter(
@@ -46,11 +46,11 @@ class PenawaranPengadaanViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         user = request.user 
-        if user.role in ['staff', 'admin', 'manager']:     # staff/manager/admin allowed access all
+        if user.role in ['staff', 'admin']:     # staff/admin allowed access all
             pass
         elif user.role == 'vendor' and instance.supplier_vendor == user:    # only allow vendor to access owned object
             pass
-        elif instance.supplier_vendor is None and user.role in ['staff', 'admin', 'manager']:      # in case no vendor related
+        elif instance.supplier_vendor is None and user.role in ['staff', 'admin']:      # in case no vendor related
             pass
         else:
             return Response(
