@@ -33,7 +33,7 @@ class ExchangeRequestViewSet(viewsets.ModelViewSet):
         exchange_request = get_object_or_404(ExchangeRequest, pk=pk, is_deleted=False)
         
         user = request.user
-        if user.role in ['staff', 'admin', 'manager'] or exchange_request.created_by == user:       #set only owner user/staff/admin/manager can view certain exchange request
+        if user.role in ['staff', 'admin', 'manager', 'owner'] or exchange_request.created_by == user:       #set only owner user/staff/admin/manager can view certain exchange request
             serializer = self.get_serializer(exchange_request)
             return Response(serializer.data)
         raise PermissionDenied("You do not have permission to view this exchange request.")

@@ -46,7 +46,7 @@ class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         user = request.user 
-        if user.role in ['staff', 'admin', 'manager']:     # staff/admin/manager allowed to access all
+        if user.role in ['staff', 'admin', 'manager', 'owner']:     # staff/admin/manager allowed to access all
             pass
         elif user.role == 'customer' and instance.created_by == user:    # allow customer to access only owned
             pass
@@ -65,7 +65,7 @@ class PengajuanPenawaranPengadaanViewSet(viewsets.ModelViewSet):
         pengajuan_penawaran = get_object_or_404(PengajuanPenawaranPengadaan, pk=pk, is_deleted=False)
         user = request.user
         created_by = pengajuan_penawaran.created_by
-        if user.role in ['staff', 'admin', 'manager']:     # staff/manager/admin allowed all
+        if user.role in ['staff', 'admin', 'manager', 'owner']:     # staff/manager/admin allowed all
             pass
         elif user.role == 'customer' and created_by == user:    # allow customer to access only owned
             pass
