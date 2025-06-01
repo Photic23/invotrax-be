@@ -90,6 +90,8 @@ class CustomUser(AbstractUser):
             assign_role(self, 'manager')
         elif self.role == 'admin':
             assign_role(self, 'admin')
+        elif self.role == 'owner':
+            assign_role(self, 'owner')
     
     def has_active_pengajuan(self):
         """
